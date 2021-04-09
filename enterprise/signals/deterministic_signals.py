@@ -138,10 +138,10 @@ def PhysicalEphemerisSignal(
         d_neptune_mass = parameter.Normal(0, 7.96103855e-11)("d_neptune_mass")
 
     if jup_orb_elements is True:
-        jup_orb_elements = parameter.Uniform(-0.05, 0.05, size=6)("jup_orb_elements")
+        jup_orb_elements = parameter.Uniform(-0.1, 0.1, size=6)("jup_orb_elements")
 
     if sat_orb_elements is True:
-        sat_orb_elements = parameter.Uniform(-0.5, 0.5, size=6)("sat_orb_elements")
+        sat_orb_elements = parameter.Uniform(-1., 1., size=6)("sat_orb_elements")
 
     # note: default prior for dynamical model is Uniform(-1e-4, 1e-4)
     #       for each element.
