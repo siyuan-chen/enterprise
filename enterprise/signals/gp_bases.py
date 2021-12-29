@@ -127,7 +127,7 @@ def createfourierdesignmatrix_dm(
 
 @function
 def createfourierdesignmatrix_dm_tn(
-    toas, freqs, nmodes=30, Tspan=None, pshift=False, fref=1400, logf=False, fmin=None, fmax=None, modes=None
+    toas, freqs, nmodes=30, Tspan=None, pshift=False, fref=1400, logf=False, fmin=None, fmax=None, idx=2, modes=None
 ):
     """
     Construct DM-variation fourier design matrix. Current
@@ -156,7 +156,7 @@ def createfourierdesignmatrix_dm_tn(
     )
 
     # compute the DM-variation vectors
-    Dm = (fref / freqs) ** 2 * np.sqrt(12) * np.pi / 1400 / 1400 / 2.41e-4
+    Dm = (fref / freqs) ** idx * np.sqrt(12) * np.pi / 1400 / 1400 / 2.41e-4
 
     return F * Dm[:, None], Ffreqs
 
