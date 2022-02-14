@@ -2,7 +2,6 @@
 """Contains various selection functions to mask parameters by backend flags,
 time-intervals, etc."""
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import functools
 import inspect
@@ -114,9 +113,20 @@ def by_backend(backend_flags):
 def nanograv_backends(backend_flags):
     """Selection function to split by NANOGRav backend flags only."""
     flagvals = np.unique(backend_flags)
-    ngb = ["ASP", "GASP", "GUPPI", "PUPPI"]
+    ngb = ["ASP", "GASP", "GUPPI", "PUPPI", "YUPPI"]
     flagvals = [val for val in flagvals if any([b in val for b in ngb])]
     return {val: backend_flags == val for val in flagvals}
+
+
+def by_telescope(telescope):
+    """Selection function to split by telescope"""
+    telescopes = np.unique(telescope)
+    return {t: (telescope == t) for t in telescopes}
+
+
+def no_selection(toas):
+    """Default selection with no splitting."""
+    return {"": np.ones_like(toas, dtype=bool)}
 
 
 def custom_backends(cb):
@@ -178,8 +188,3 @@ def custom_backends_dict(cb):
             return {"": np.ones_like(toas, dtype=bool)}
 
     return backends
-
-
-def no_selection(toas):
-    """Default selection with no splitting."""
-    return {"": np.ones_like(toas, dtype=bool)}

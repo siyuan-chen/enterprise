@@ -530,6 +530,65 @@ class TestGPSignals(unittest.TestCase):
         msg = "M matrix shape incorrect"
         assert tm.get_basis(params).shape == self.psr.Mmat.shape, msg
 
+        # test unnormed
+        ts = gp_signals.TimingModel(normed=False)
+        tm = ts(self.psr)
+
+        msg = "Incorrect unnormed timing-model matrix"
+        assert np.allclose(self.psr.Mmat, tm.get_basis({})), msg
+
+        # test prescribed norm
+        ts = gp_signals.TimingModel(normed=np.ones(self.psr.Mmat.shape[1]))
+        tm = ts(self.psr)
+
+        msg = "Incorrect prescribed-norm timing-model matrix"
+        assert np.allclose(self.psr.Mmat, tm.get_basis({})), msg
+
+        # test svd
+        ts = gp_signals.TimingModel(use_svd=True)
+        tm = ts(self.psr)
+
+        u, s, v = np.linalg.svd(self.psr.Mmat, full_matrices=False)
+        msg = "Incorrect SVD timing-model matrix"
+        assert np.allclose(u, tm.get_basis({})), msg
+
+        # test incompatible prescription
+        self.assertRaises(ValueError, gp_signals.TimingModel, use_svd=True, normed=False)
+
+    def test_pshift_fourier(self):
+        """Test Fourier basis with prescribed phase shifts."""
+
+        # build a SignalCollection with timing model and red noise with phase shifts
+
+        Tspan = self.psr.toas.max() - self.psr.toas.min()
+        pl = utils.powerlaw(log10_A=parameter.Uniform(-18, -12), gamma=parameter.Uniform(0, 7))
+
+        ts = gp_signals.TimingModel()
+        rn = gp_signals.FourierBasisGP(pl, components=5, Tspan=Tspan, pseed=parameter.Uniform(0, 32768))
+
+        s = ts + rn
+        m = s(self.psr)
+
+        b1 = m.signals[1].get_basis()
+        b2 = utils.createfourierdesignmatrix_red(nmodes=5, Tspan=Tspan)("")(self.psr.toas)[0]
+        msg = "Fourier bases incorrect (no phase shifts)"
+        assert np.all(b1 == b2), msg
+
+        b1 = m.signals[1].get_basis()
+        b2 = utils.createfourierdesignmatrix_red(nmodes=5, Tspan=Tspan, pseed=5)("")(self.psr.toas)[0]
+        msg = "Fourier bases incorrect (no-parameter call vs phase shift 5)"
+        assert not np.all(b1 == b2), msg
+
+        b1 = m.signals[1].get_basis(params={self.psr.name + "_red_noise_pseed": 5})
+        b2 = utils.createfourierdesignmatrix_red(nmodes=5, Tspan=Tspan, pseed=5)("")(self.psr.toas)[0]
+        msg = "Fourier bases incorrect (phase shift 5)"
+        assert np.all(b1 == b2), msg
+
+        b1 = m.signals[1].get_basis(params={self.psr.name + "_red_noise_pseed": 5})
+        b2 = utils.createfourierdesignmatrix_red(nmodes=5, Tspan=Tspan)("")(self.psr.toas)[0]
+        msg = "Fourier bases incorrect (phase-shift-5 call vs no phase shift)"
+        assert not np.all(b1 == b2), msg
+
     def test_gp_parameter(self):
         """Test GP basis model with parameterized basis."""
 

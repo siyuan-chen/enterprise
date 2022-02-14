@@ -66,14 +66,16 @@ def createfourierdesignmatrix_red(
         else:
             f = np.linspace(fmin, fmax, nmodes)
 
-    # Use seed to make a repeatable random phase
-    if pseed is not None:
-        # Use the first toa to make a different seed for every pulsar
-        seed = int(toas[0] / 17) + pseed
-        np.random.seed(seed)
+    # if requested, add random phase shift to basis functions
+    if pshift or pseed is not None:
+        if pseed is not None:
+            # use the first toa to make a different seed for every pulsar
+            seed = int(toas[0] / 17) + int(pseed)
+            np.random.seed(seed)
 
-    # add random phase shift to basis functions
-    ranphase = np.random.uniform(0.0, 2 * np.pi, nmodes) if pshift else np.zeros(nmodes)
+        ranphase = np.random.uniform(0.0, 2 * np.pi, nmodes)
+    else:
+        ranphase = np.zeros(nmodes)
 
     Ffreqs = np.repeat(f, 2)
 
@@ -125,7 +127,7 @@ def createfourierdesignmatrix_dm(
 
 @function
 def createfourierdesignmatrix_dm_tn(
-    toas, freqs, nmodes=30, Tspan=None, pshift=False, fref=1400, logf=False, fmin=None, fmax=None, modes=None
+    toas, freqs, nmodes=30, Tspan=None, pshift=False, fref=1400, logf=False, fmin=None, fmax=None, idx=2, modes=None
 ):
     """
     Construct DM-variation fourier design matrix. Current
@@ -154,7 +156,7 @@ def createfourierdesignmatrix_dm_tn(
     )
 
     # compute the DM-variation vectors
-    Dm = (fref / freqs) ** 2 * np.sqrt(12) * np.pi / 1400 / 1400 / 2.41e-4
+    Dm = (fref / freqs) ** idx * np.sqrt(12) * np.pi / 1400 / 1400 / 2.41e-4
 
     return F * Dm[:, None], Ffreqs
 

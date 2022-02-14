@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
+try:
+    from .version import version
+except:
+    version = "unknown"
 
-__author__ = """Justin A. Ellis"""
-__email__ = "justin.ellis18@gmail.com"
-__version__ = "3.0.0"
+__version__ = version
