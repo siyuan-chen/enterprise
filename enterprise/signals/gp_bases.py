@@ -255,7 +255,8 @@ def createfourierdesignmatrix_eph(
 
 
 @function
-def createfourierdesignmatrix_chromatic(toas, freqs, nmodes=30, Tspan=None, logf=False, fmin=None, fmax=None, idx=4):
+def createfourierdesignmatrix_chromatic(toas, freqs, nmodes=30, Tspan=None, logf=False, fmin=None, fmax=None, idx=4, modes=None
+):
 
     """
     Construct Scattering-variation fourier design matrix.
@@ -269,13 +270,17 @@ def createfourierdesignmatrix_chromatic(toas, freqs, nmodes=30, Tspan=None, logf
     :param fmin: lower sampling frequency
     :param fmax: upper sampling frequency
     :param idx: Index of chromatic effects
+    :param modes: option to provide explicit list or array of
+                  sampling frequencies
 
     :return: F: Chromatic-variation fourier design matrix
     :return: f: Sampling frequencies
     """
 
     # get base fourier design matrix and frequencies
-    F, Ffreqs = createfourierdesignmatrix_red(toas, nmodes=nmodes, Tspan=Tspan, logf=logf, fmin=fmin, fmax=fmax)
+    F, Ffreqs = createfourierdesignmatrix_red(
+        toas, nmodes=nmodes, Tspan=Tspan, logf=logf, fmin=fmin, fmax=fmax, modes=modes
+    )
 
     # compute the DM-variation vectors
     Dm = (1400 / freqs) ** idx
