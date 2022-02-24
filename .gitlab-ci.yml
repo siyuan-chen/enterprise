@@ -1,0 +1,8 @@
+stages:
+  - builddown
+
+multi-build:
+  stage: builddown
+  trigger:
+    project: epta/docker_singularity
+    branch: master
