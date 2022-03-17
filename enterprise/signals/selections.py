@@ -98,6 +98,14 @@ def by_band(flags):
     return {val: flags["B"] == val for val in flagvals}
 
 
+def epta_bands(freqs):
+    """Selection function to split by EPTA frequency band values"""
+    bands = {"Band.1":[0,1000], "Band.2":[1000,2000],
+             "Band.3":[2000,3000], "Band.4":[3000,10000]}
+    return {val: (freqs>=fl) & (freqs<fh) for val, (fl, fh) in bands.items() if any(
+            (freqs>=fl) & (freqs<fh))}
+
+
 def by_frontend(flags):
     """Selection function to split by frontend under -fe flag"""
     flagvals = np.unique(flags["fe"])
@@ -134,7 +142,7 @@ def custom_backends(cb):
         """Selection function to split by custom backend flags only.
         cb : list of str of the backends
         use None to recover by_backend
-        use ["ASP", "GASP", "GUPPI", "PUPPI"] to recover nanograv_backends
+        use ["ASP", "GASP", "GUPPI", "PUPPI", "YUPPI"] to recover nanograv_backends
         """
         nonlocal cb
         flagvals = np.unique(backend_flags)
@@ -156,7 +164,7 @@ def custom_backends_dict(cb):
         use {"B":None} to recover by_band
         use {"fe":None} to recover by_frontend
         use {"backend":None} to recover by_backend
-        use {"backend":["ASP", "GASP", "GUPPI", "PUPPI"]} to recover nanograv_backends
+        use {"backend":["ASP", "GASP", "GUPPI", "PUPPI", "YUPPI"]} to recover nanograv_backends
         """
         nonlocal cb
         if isinstance(cb, str) or isinstance(cb, list):
