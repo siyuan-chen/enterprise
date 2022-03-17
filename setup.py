@@ -20,7 +20,7 @@ test_requirements = []
 
 setup(
     name="enterprise-pulsar",
-    version="3.3.0",
+    version="3.3.1",
     description="ENTERPRISE (Enhanced Numerical Toolbox Enabling a Robust PulsaR Inference SuitE)",
     long_description=readme,
     long_description_content_type="text/markdown",
