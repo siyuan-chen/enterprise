@@ -45,7 +45,7 @@ def create_quant_matrix(toas, dt=1):
 def se_kernel(etoas, log10_sigma=-7, log10_lam=np.log10(30 * 86400)):
     tm = np.abs(etoas[None, :] - etoas[:, None])
     d = np.eye(tm.shape[0]) * 10 ** (2 * (log10_sigma - 1.5))
-    return 10 ** (2 * log10_sigma) * np.exp(-(tm ** 2) / 2 / 10 ** (2 * log10_lam)) + d
+    return 10 ** (2 * log10_sigma) * np.exp(-(tm**2) / 2 / 10 ** (2 * log10_lam)) + d
 
 
 class TestGPCoefficients(unittest.TestCase):
@@ -300,8 +300,8 @@ class TestGPCoefficients(unittest.TestCase):
 
         # build index for the global coefficient vector
         idx, ntot = {}, 0
-        for l, v in cmean.items():
-            idx[l] = slice(ntot, ntot + len(v))
+        for c_name, v in cmean.items():
+            idx[c_name] = slice(ntot, ntot + len(v))
             ntot = ntot + len(v)
 
         # repeat the computation using the common-signal formalism
@@ -318,8 +318,8 @@ class TestGPCoefficients(unittest.TestCase):
 
         # check mean values
         msg = "Conditional GP coefficient value does not match"
-        for l, v in cmean.items():
-            assert np.allclose(mn[idx[l]], v, atol=1e-4, rtol=1e-4), msg
+        for c_name, v in cmean.items():
+            assert np.allclose(mn[idx[c_name]], v, atol=1e-4, rtol=1e-4), msg
 
         # check variances
         par = "B1937+21_linear_timing_model_coefficients"
@@ -360,8 +360,8 @@ class TestGPCoefficients(unittest.TestCase):
         cmean = c.get_mean_coefficients(p0)
 
         idx, ntot = {}, 0
-        for l, v in cmean.items():
-            idx[l] = slice(ntot, ntot + len(v))
+        for c_name, v in cmean.items():
+            idx[c_name] = slice(ntot, ntot + len(v))
             ntot = ntot + len(v)
 
         TNrs = pta.get_TNr(p0)
@@ -375,8 +375,8 @@ class TestGPCoefficients(unittest.TestCase):
         mn = ch(TNr)
 
         msg = "Conditional GP coefficient value does not match for common GP"
-        for l, v in cmean.items():
-            assert np.allclose(mn[idx[l]], v)
+        for c_name, v in cmean.items():
+            assert np.allclose(mn[idx[c_name]], v)
 
 
 class TestGPCoefficientsPint(TestGPCoefficients):

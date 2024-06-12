@@ -11,6 +11,7 @@ import astropy.constants as const
 import astropy.units as u
 import numpy as np
 from ephem import Ecliptic, Equatorial
+from astropy.time import Time
 
 import enterprise
 from enterprise.signals import utils
@@ -108,7 +109,11 @@ class BasePulsar(object):
 
     def _get_pos(self):
         return np.array(
-            [np.cos(self._raj) * np.cos(self._decj), np.sin(self._raj) * np.cos(self._decj), np.sin(self._decj)]
+            [
+                np.cos(self._raj) * np.cos(self._decj),
+                np.sin(self._raj) * np.cos(self._decj),
+                np.sin(self._decj),
+            ]
         )
 
     def sort_data(self):
@@ -237,6 +242,14 @@ class BasePulsar(object):
 
         return {flag: self._flags[flag][self._isort] for flag in flagnames}
 
+    def set_flags(self, flagname, values):
+        """Set value of existing or new flags."""
+
+        if isinstance(self._flags, np.ndarray):
+            raise NotImplementedError("Cannot set flags when stored as numpy.ndarray.")
+        else:
+            self._flags[flagname] = values[self._iisort]
+
     @property
     def backend_flags(self):
         """Return array of backend flags.
@@ -303,7 +316,6 @@ class BasePulsar(object):
 
 class PintPulsar(BasePulsar):
     def __init__(self, toas, model, sort=True, drop_pintpsr=True, planets=True):
-
         self._sort = sort
         self.planets = planets
         self.name = model.PSR.value
@@ -359,7 +371,11 @@ class PintPulsar(BasePulsar):
             "AstrometryEquatorial" if "AstrometryEquatorial" in model.components else "AstrometryEcliptic"
         )
 
-        self._pos_t = model.components[which_astrometry].ssb_to_psb_xyz_ICRS(model.get_barycentric_toas(toas)).value
+        self._pos_t = (
+            model.components[which_astrometry]
+            .ssb_to_psb_xyz_ICRS(Time(model.get_barycentric_toas(toas), format="mjd"))
+            .value
+        )
 
         self.sort_data()
 
@@ -372,7 +388,7 @@ class PintPulsar(BasePulsar):
         dmx = {
             par: {
                 "DMX": float(model[par].value),
-                "DMXerr": float(model[par].uncertainty_value),
+                "DMXerr": None if model[par].uncertainty_value is None else float(model[par].uncertainty_value),
                 "DMXR1": float(model[par[:3] + "R1" + par[3:]].value),
                 "DMXR2": float(model[par[:3] + "R2" + par[3:]].value),
                 "fit": par in pars,
@@ -440,7 +456,6 @@ class PintPulsar(BasePulsar):
 
 class Tempo2Pulsar(BasePulsar):
     def __init__(self, t2pulsar, sort=True, drop_t2pulsar=True, planets=True):
-
         self._sort = sort
         self.t2pulsar = t2pulsar
         self.planets = planets
@@ -641,13 +656,16 @@ def Pulsar(*args, **kwargs):
             if (clk is not None) and (bipm_version is None):
                 bipm_version = clk.split("(")[1][:-1]
             model, toas = get_model_and_toas(
-                relparfile, reltimfile, ephem=ephem, bipm_version=bipm_version, planets=planets
+                relparfile,
+                reltimfile,
+                ephem=ephem,
+                bipm_version=bipm_version,
+                planets=planets,
             )
             os.chdir(cwd)
             return PintPulsar(toas, model, sort=sort, drop_pintpsr=drop_pintpsr, planets=planets)
 
         elif timing_package.lower() == "tempo2":
-
             # hack to set maxobs
             maxobs = get_maxobs(reltimfile) + 100
             t2pulsar = t2.tempopulsar(relparfile, reltimfile, maxobs=maxobs, ephem=ephem, clk=clk)

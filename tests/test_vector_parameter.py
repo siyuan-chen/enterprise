@@ -21,7 +21,7 @@ from tests.enterprise_test_data import datadir
 
 @function
 def free_spectrum(f, log10_rho=None):
-    return np.repeat(10 ** log10_rho, 2)
+    return np.repeat(10**log10_rho, 2)
 
 
 class TestVectorParameter(unittest.TestCase):
@@ -46,7 +46,7 @@ class TestVectorParameter(unittest.TestCase):
 
         # test
         msg = "Phi incorrect"
-        assert np.all(np.repeat(10 ** lrho, 2) == rnm.get_phi(params)), msg
+        assert np.all(np.repeat(10**lrho, 2) == rnm.get_phi(params)), msg
 
         # test signal level parameter names
         msg = "Incorrect parameter names"
@@ -75,7 +75,7 @@ class TestVectorParameter(unittest.TestCase):
         pta = signal_base.PTA([s(self.psr)])
 
         # parameters
-        xs = np.hstack(p.sample() for p in pta.params)
+        xs = np.hstack([p.sample() for p in pta.params])
         params = {"B1855+09_red_noise_log10_rho": xs[1:], "B1855+09_efac": xs[0]}
 
         # test log likelihood
